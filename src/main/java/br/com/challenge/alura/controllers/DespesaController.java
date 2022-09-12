@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.challenge.alura.dto.despesa.DespesaDTO;
@@ -70,19 +71,32 @@ public class DespesaController {
 	
 	@GetMapping
 	@Cacheable(value = "despesas")
-	public ResponseEntity<Object> listaDespesas(@PageableDefault(sort = "id", page = 0, direction = Direction.ASC,size = 5)
-	Pageable pageable){
+	public ResponseEntity<Object> listaDespesas(@RequestParam(required = false) String descricao, 
+			@PageableDefault(sort = "id", page = 0, direction = Direction.ASC,size = 5)Pageable pageable){
 	
-		try {
-			Page<Despesa> despesas = despesaService.listarDespesas(pageable);
-			
-			if(!despesas.isEmpty()) {
-				return new ResponseEntity<>(despesas, HttpStatus.OK);
-			}else {
-				return new ResponseEntity<>("Lista de despesas vazia!", HttpStatus.INTERNAL_SERVER_ERROR);
+		if(descricao == null) {
+			try {
+				Page<Despesa> despesas = despesaService.listarDespesas(pageable);
+				
+				if(!despesas.isEmpty()) {
+					return new ResponseEntity<>(despesas, HttpStatus.OK);
+				}else {
+					return new ResponseEntity<>("Lista de despesas vazia!", HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}catch (Exception e) {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
-		}catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}else {
+			try {
+				Page<Despesa> despesas = despesaService.listarDespesasPorDescricao(descricao, pageable);
+				if(!despesas.isEmpty()) {
+					return ResponseEntity.status(HttpStatus.OK).body(despesas);
+				}else {
+					return new ResponseEntity<>("Não há lista com essa descrição!",HttpStatus.NOT_FOUND);
+				}
+			}catch (Exception e) {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
 		}
 	}
 	

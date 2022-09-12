@@ -63,4 +63,8 @@ public class DespesaService {
 		despesaRepository.delete(despesa);
 	}
 
+	public Page<Despesa> listarDespesasPorDescricao(String descricao, Pageable pageable) {
+		return despesaRepository.findByDescricao(descricao,pageable);
+	}
+
 }
