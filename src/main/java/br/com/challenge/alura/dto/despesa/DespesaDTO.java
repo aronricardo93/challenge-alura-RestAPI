@@ -2,6 +2,8 @@ package br.com.challenge.alura.dto.despesa;
 
 import java.time.LocalDate;
 
+import org.springframework.data.domain.Page;
+
 import br.com.challenge.alura.enums.CategorizacaoDespesas;
 import br.com.challenge.alura.models.Despesa;
 import lombok.Getter;
@@ -28,4 +30,7 @@ public class DespesaDTO {
 		this.categorizacaoDespesas = despesa.getCategorizacaoDespesas();
 	}
 	
+	public static Page<DespesaDTO> returnDespesasDTO(Page<Despesa> despesas){
+		return despesas.map(DespesaDTO::new);
+	}
 }
