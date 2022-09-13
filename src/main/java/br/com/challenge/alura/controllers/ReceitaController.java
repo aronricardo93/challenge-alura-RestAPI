@@ -1,6 +1,7 @@
 package br.com.challenge.alura.controllers;
 
 
+
 import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
@@ -50,22 +51,6 @@ public class ReceitaController {
 		}
 	}
 	
-	@GetMapping
-	@Cacheable(value = "receita")
-	public ResponseEntity<Page<ReceitaDTO>> listaReceita(@RequestParam(required = false) String descricao, 
-			@PageableDefault(sort = "id" ,page = 0, size = 5,direction = Direction.ASC) Pageable pageable){
-		
-		if(descricao == null) {
-			Page<Receita> receitas = receitaService.listarReceitas(pageable);
-			
-			return ResponseEntity.status(HttpStatus.OK).body(ReceitaDTO.returnReceitasDTO(receitas));
-		}else {
-			Page<Receita> receitas = receitaService.listarReceitasPorDescricacao(descricao, pageable);
-			
-			return ResponseEntity.status(HttpStatus.OK).body(ReceitaDTO.returnReceitasDTO(receitas));
-		}
-	}
-	
 	@GetMapping("/{id}")
 	@CacheEvict(value = "receita", allEntries = true)
 	public ResponseEntity<Object> getReceita(@PathVariable Long id){
@@ -73,6 +58,33 @@ public class ReceitaController {
 		var dto = new ReceitaDTO(receita);		
 		
 		return new ResponseEntity<>(dto, HttpStatus.OK);
+	}
+	
+	@GetMapping
+	@Cacheable(value = "receita")
+	public ResponseEntity<Page<ReceitaDTO>> listaReceita(@RequestParam(required = false) String descricao,
+			@PageableDefault(sort = "id" ,page = 0, size = 5,direction = Direction.ASC) Pageable pageable){
+		
+		try {
+			if(descricao == null) {
+				Page<Receita> receitas = receitaService.listarReceitas(pageable);
+				
+				return ResponseEntity.status(HttpStatus.OK).body(ReceitaDTO.returnReceitasDTO(receitas));
+			}else{
+				Page<Receita> receitas = receitaService.listarReceitasPorDescricao(descricao, pageable);
+				
+				return ResponseEntity.status(HttpStatus.OK).body(ReceitaDTO.returnReceitasDTO(receitas));
+			}
+		}catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+	
+	@GetMapping("/{ano}/{mes}")
+    public ResponseEntity<Page<ReceitaDTO>> findAllByAnoAndMes(@PathVariable Integer ano, @PathVariable Integer mes, @PageableDefault(direction = Direction.ASC, page = 0, size = 10) Pageable paginacao) {
+        Page<Receita> receitas = receitaService.findAllByAnoAndMes(ano, mes, paginacao);
+        
+        return ResponseEntity.status(HttpStatus.OK).body(ReceitaDTO.returnReceitasDTO(receitas));
 	}
 	
 	@PutMapping("/{id}")

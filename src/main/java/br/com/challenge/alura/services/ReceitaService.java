@@ -1,5 +1,6 @@
 package br.com.challenge.alura.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,8 @@ public class ReceitaService {
 
 	@Autowired
 	private ReceitaRepository receitaRepository;
+	
+	private Page<Receita> receitas;
 	
 	@Transactional
 	public boolean save(Receita receita) {
@@ -62,8 +65,19 @@ public class ReceitaService {
 		return receitaRepository.save(receita);
 	}
 
-	public Page<Receita> listarReceitasPorDescricacao(String descricao, Pageable pageable) {
-		return receitaRepository.findByDescricao(descricao, pageable);
+	public Page<Receita> listarReceitasPorDescricao(String descricao, Pageable pageable) {
 		
+		return receitaRepository.findByDescricao(descricao, pageable);
+	}
+
+
+	public Page<Receita> findAllByAnoAndMes(Integer ano, Integer mes, Pageable pageable) {
+		
+		LocalDate data = LocalDate.of(ano, mes, 1);
+		LocalDate dataInicio = data.withDayOfMonth(1);
+		LocalDate dataFinal = data.withDayOfMonth(data.lengthOfMonth());
+		
+		return receitaRepository.findAllByAnoAndMes(dataInicio, dataFinal, pageable);
+
 	}
 }
