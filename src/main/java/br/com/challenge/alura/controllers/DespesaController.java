@@ -1,5 +1,6 @@
 package br.com.challenge.alura.controllers;
 
+
 import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
@@ -68,7 +69,15 @@ public class DespesaController {
 		
 	}
 	
-	
+	@GetMapping("/{ano}/{mes}")
+	@CacheEvict(value = "despesas", allEntries = true)
+	public ResponseEntity<Page<DespesaDTO>> listarPorMesAno(@PathVariable Integer ano, @PathVariable Integer mes, Pageable pageable){
+		
+		 Page<Despesa> despesas = despesaService.filtrarPorAnoMes(ano, mes, pageable);
+		
+		return ResponseEntity.ok(DespesaDTO.returnDespesasDTO(despesas));
+	}
+
 	@GetMapping
 	@Cacheable(value = "despesas")
 	public ResponseEntity<Object> listaDespesas(@RequestParam(required = false) String descricao, 

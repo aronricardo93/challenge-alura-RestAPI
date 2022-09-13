@@ -1,5 +1,6 @@
 package br.com.challenge.alura.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,15 @@ public class DespesaService {
 
 	public Page<Despesa> listarDespesas(Pageable pageable) {
 		return despesaRepository.findAll(pageable);
+	}
+	
+	public Page<Despesa> filtrarPorAnoMes(Integer ano, Integer mes, Pageable pageable) {
+		LocalDate data = LocalDate.of(ano, mes, 1);
+		LocalDate dataInicio = data.withDayOfMonth(1);
+		LocalDate dataFim = data.withDayOfMonth(data.lengthOfMonth());
+		
+		return despesaRepository.filtrarPorAnoMes(dataInicio, dataFim, pageable);
+		
 	}
 
 	@Transactional
